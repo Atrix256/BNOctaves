@@ -1,0 +1,221 @@
+{
+    "$schema": "gigischema.json",
+    "version": "0.99b",
+    "variables": [
+        {
+            "name": "NoiseType",
+            "comment": "The type of noise to use",
+            "type": "Int",
+            "dflt": "Blue",
+            "visibility": "User",
+            "Enum": "NoiseTypes"
+        },
+        {
+            "name": "NumberOfOctaves",
+            "comment": "How many octaves to use",
+            "type": "Uint",
+            "dflt": "3",
+            "visibility": "User"
+        },
+        {
+            "name": "DifferentNoisePerOctave",
+            "comment": "If false, the same noise will be used for each octave. If true, a different noise, of the same type, will be used for each octave.",
+            "type": "Bool",
+            "dflt": "false",
+            "visibility": "User"
+        },
+        {
+            "name": "DivideByOctaveCount",
+            "comment": "If true, divids by how many octaves there are, to normalize the result",
+            "type": "Bool",
+            "dflt": "false",
+            "visibility": "User"
+        }
+    ],
+    "shaders": [
+        {
+            "name": "DisplayCS",
+            "fileName": "DisplayCS.hlsl",
+            "entryPoint": "csmain",
+            "resources": [
+                {
+                    "name": "Output",
+                    "type": "Texture",
+                    "access": "UAV"
+                },
+                {
+                    "name": "OutputF",
+                    "type": "Texture",
+                    "access": "UAV"
+                }
+            ]
+        }
+    ],
+    "nodes": [
+        {
+            "actionComputeShader": {
+                "name": "Display",
+                "editorPos": [
+                    5.0,
+                    1.0
+                ],
+                "linkProperties": [
+                    {},
+                    {},
+                    {}
+                ],
+                "connections": [
+                    {
+                        "srcPin": "OutputF",
+                        "dstNode": "OutputF",
+                        "dstPin": "resource"
+                    },
+                    {
+                        "srcPin": "OutputF"
+                    },
+                    {
+                        "srcPin": "Output",
+                        "dstNode": "Output",
+                        "dstPin": "resource"
+                    }
+                ],
+                "shader": {
+                    "name": "DisplayCS"
+                },
+                "dispatchSize": {
+                    "node": {
+                        "name": "Output"
+                    }
+                }
+            }
+        },
+        {
+            "resourceTexture": {
+                "name": "Output",
+                "editorPos": [
+                    -133.0,
+                    2.0
+                ],
+                "visibility": "Exported",
+                "format": {
+                    "format": "R8_Unorm"
+                },
+                "size": {
+                    "multiply": [
+                        128,
+                        128,
+                        1
+                    ]
+                }
+            }
+        },
+        {
+            "resourceTexture": {
+                "name": "OutputF",
+                "editorPos": [
+                    -133.0,
+                    50.0
+                ],
+                "visibility": "Exported",
+                "format": {
+                    "format": "R32_Float"
+                },
+                "size": {
+                    "node": {
+                        "name": "Output"
+                    }
+                }
+            }
+        },
+        {
+            "actionSubGraph": {
+                "name": "MakeHistogram",
+                "editorPos": [
+                    183.0,
+                    2.0
+                ],
+                "linkProperties": [
+                    {},
+                    {},
+                    {},
+                    {}
+                ],
+                "connections": [
+                    {
+                        "srcPin": "Input",
+                        "dstNode": "Display",
+                        "dstPin": "OutputF"
+                    },
+                    {
+                        "srcPin": "Counts"
+                    },
+                    {
+                        "srcPin": "Graph"
+                    },
+                    {
+                        "srcPin": "InputStats"
+                    }
+                ],
+                "fileName": "Histogram\\Histogram.gg",
+                "subGraphData": {
+                    "importedResources": [
+                        "Input"
+                    ],
+                    "exportedResources": [
+                        "Counts",
+                        "Graph",
+                        "InputStats"
+                    ],
+                    "variables": [
+                        {
+                            "name": "ChannelDotProduct",
+                            "visibility": "User"
+                        },
+                        {
+                            "name": "GraphSize",
+                            "visibility": "User"
+                        }
+                    ]
+                },
+                "variableSettings": [
+                    {
+                        "name": "ChannelDotProduct",
+                        "visibility": "User"
+                    },
+                    {
+                        "name": "GraphSize",
+                        "visibility": "User"
+                    }
+                ]
+            }
+        }
+    ],
+    "enums": [
+        {
+            "name": "NoiseTypes",
+            "items": [
+                {
+                    "label": "Blue"
+                },
+                {
+                    "label": "White"
+                },
+                {
+                    "label": "Binomial3x3"
+                },
+                {
+                    "label": "Box3x3"
+                },
+                {
+                    "label": "Box5x5"
+                },
+                {
+                    "label": "R2"
+                },
+                {
+                    "label": "IGN"
+                }
+            ]
+        }
+    ]
+}

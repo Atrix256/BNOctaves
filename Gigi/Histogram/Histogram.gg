@@ -1,0 +1,318 @@
+{
+    "$schema": "gigischema.json",
+    "version": "0.99b",
+    "variables": [
+        {
+            "name": "ChannelDotProduct",
+            "comment": "A histogram needs a scalar value. Pixel values are dotted against this vector to turn the vectors into a scalar.",
+            "type": "Float4",
+            "dflt": "0.25f, 0.25f, 0.25f, 0.25f",
+            "visibility": "User"
+        },
+        {
+            "name": "NumBuckets",
+            "type": "Uint",
+            "dflt": "256",
+            "visibility": "User"
+        },
+        {
+            "name": "GraphSize",
+            "type": "Uint2",
+            "dflt": "512, 256",
+            "visibility": "User"
+        },
+        {
+            "name": "XAxisRange",
+            "type": "Float2",
+            "dflt": "0.0f, 1.0f",
+            "visibility": "User"
+        },
+        {
+            "name": "AutoXAxisRange",
+            "type": "Bool",
+            "dflt": "true",
+            "visibility": "User"
+        }
+    ],
+    "shaders": [
+        {
+            "name": "MakeCountsCS",
+            "fileName": "MakeCountsCS.hlsl",
+            "entryPoint": "csmain",
+            "resources": [
+                {
+                    "name": "Input",
+                    "type": "Texture",
+                    "access": "SRV"
+                },
+                {
+                    "name": "MinMaxValue",
+                    "type": "Buffer",
+                    "access": "SRV",
+                    "buffer": {
+                        "type": "Uint2"
+                    }
+                },
+                {
+                    "name": "Counts",
+                    "type": "Buffer",
+                    "access": "UAV",
+                    "buffer": {
+                        "type": "Uint"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "MakeGraphCS",
+            "fileName": "MakeGraphCS.hlsl",
+            "entryPoint": "csmain",
+            "resources": [
+                {
+                    "name": "Counts",
+                    "type": "Buffer",
+                    "access": "SRV",
+                    "buffer": {
+                        "type": "Uint"
+                    }
+                },
+                {
+                    "name": "Output",
+                    "type": "Texture",
+                    "access": "UAV"
+                }
+            ]
+        },
+        {
+            "name": "MakeMinMaxValueCS",
+            "fileName": "MakeMinMaxValueCS.hlsl",
+            "entryPoint": "csmain",
+            "resources": [
+                {
+                    "name": "Input",
+                    "type": "Texture",
+                    "access": "SRV"
+                },
+                {
+                    "name": "MinMaxValue",
+                    "type": "Buffer",
+                    "access": "UAV",
+                    "buffer": {
+                        "type": "Uint2"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "InitMinMaxValueCS",
+            "fileName": "InitMinMaxValueCS.hlsl",
+            "entryPoint": "csmain",
+            "resources": [
+                {
+                    "name": "MinMaxValue",
+                    "type": "Buffer",
+                    "access": "UAV",
+                    "buffer": {
+                        "type": "Uint2"
+                    }
+                }
+            ]
+        }
+    ],
+    "nodes": [
+        {
+            "resourceTexture": {
+                "name": "Input",
+                "editorPos": [
+                    -197.0,
+                    -14.0
+                ],
+                "visibility": "Imported"
+            }
+        },
+        {
+            "actionComputeShader": {
+                "name": "MakeCounts",
+                "editorPos": [
+                    107.0,
+                    2.0
+                ],
+                "linkProperties": [
+                    {},
+                    {},
+                    {},
+                    {}
+                ],
+                "connections": [
+                    {
+                        "srcPin": "Counts",
+                        "dstNode": "Counts",
+                        "dstPin": "resource"
+                    },
+                    {
+                        "srcPin": "Input",
+                        "dstNode": "MakeMinMaxValue",
+                        "dstPin": "Input"
+                    },
+                    {
+                        "srcPin": "MinMaxValue",
+                        "dstNode": "MakeMinMaxValue",
+                        "dstPin": "MinMaxValue"
+                    }
+                ],
+                "shader": {
+                    "name": "MakeCountsCS"
+                },
+                "dispatchSize": {
+                    "node": {
+                        "name": "Input"
+                    },
+                    "indirectBuffer": {
+                        "node": "MakeCounts"
+                    }
+                }
+            }
+        },
+        {
+            "resourceBuffer": {
+                "name": "Counts",
+                "editorPos": [
+                    -53.0,
+                    98.0
+                ],
+                "visibility": "Exported",
+                "format": {
+                    "type": "Uint"
+                },
+                "count": {
+                    "variable": {
+                        "name": "NumBuckets"
+                    },
+                    "postAdd": 1
+                }
+            }
+        },
+        {
+            "resourceTexture": {
+                "name": "Graph",
+                "editorPos": [
+                    155.0,
+                    114.0
+                ],
+                "visibility": "Exported",
+                "format": {
+                    "format": "RGBA8_Unorm_sRGB"
+                },
+                "size": {
+                    "variable": {
+                        "name": "GraphSize"
+                    }
+                }
+            }
+        },
+        {
+            "actionComputeShader": {
+                "name": "MakeGraph",
+                "editorPos": [
+                    293.0,
+                    2.0
+                ],
+                "linkProperties": [
+                    {},
+                    {},
+                    {}
+                ],
+                "connections": [
+                    {
+                        "srcPin": "Counts",
+                        "dstNode": "MakeCounts",
+                        "dstPin": "Counts"
+                    },
+                    {
+                        "srcPin": "Output",
+                        "dstNode": "Graph",
+                        "dstPin": "resource"
+                    }
+                ],
+                "shader": {
+                    "name": "MakeGraphCS"
+                },
+                "dispatchSize": {
+                    "node": {
+                        "name": "Graph"
+                    }
+                }
+            }
+        },
+        {
+            "resourceBuffer": {
+                "name": "MinMaxValue",
+                "editorPos": [
+                    -384.0,
+                    34.0
+                ],
+                "visibility": "Exported",
+                "format": {
+                    "type": "Uint2"
+                }
+            }
+        },
+        {
+            "actionComputeShader": {
+                "name": "MakeMinMaxValue",
+                "editorPos": [
+                    -79.0,
+                    2.0
+                ],
+                "linkProperties": [
+                    {},
+                    {},
+                    {}
+                ],
+                "connections": [
+                    {
+                        "srcPin": "Input",
+                        "dstNode": "Input",
+                        "dstPin": "resource"
+                    },
+                    {
+                        "srcPin": "MinMaxValue",
+                        "dstNode": "InitMinMaxValue",
+                        "dstPin": "MinMaxValue"
+                    }
+                ],
+                "shader": {
+                    "name": "MakeMinMaxValueCS"
+                },
+                "dispatchSize": {
+                    "node": {
+                        "name": "Input"
+                    }
+                }
+            }
+        },
+        {
+            "actionComputeShader": {
+                "name": "InitMinMaxValue",
+                "editorPos": [
+                    -251.0,
+                    34.0
+                ],
+                "linkProperties": [
+                    {},
+                    {}
+                ],
+                "connections": [
+                    {
+                        "srcPin": "MinMaxValue",
+                        "dstNode": "MinMaxValue",
+                        "dstPin": "resource"
+                    }
+                ],
+                "shader": {
+                    "name": "InitMinMaxValueCS"
+                }
+            }
+        }
+    ]
+}

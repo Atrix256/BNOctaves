@@ -1,0 +1,45 @@
+{
+    "version": "2.0",
+    "snapshot": {
+        "resourceViewNodeIndex": 6,
+        "resourceViewResourceIndex": 3,
+        "savedVariables": [
+            {
+                "name": "NoiseType",
+                "value": "6"
+            },
+            {
+                "name": "NumberOfOctaves",
+                "value": "32"
+            },
+            {
+                "name": "DifferentNoisePerOctave",
+                "value": "true"
+            },
+            {
+                "name": "DivideByOctaveCount",
+                "value": "false"
+            },
+            {
+                "name": "MakeHistogram_ChannelDotProduct",
+                "value": "1.000000,0.000000,0.000000,0.000000"
+            },
+            {
+                "name": "MakeHistogram_NumBuckets",
+                "value": "256"
+            },
+            {
+                "name": "MakeHistogram_GraphSize",
+                "value": "512,256"
+            },
+            {
+                "name": "MakeHistogram_XAxisRange",
+                "value": "0.000000,1.000000"
+            },
+            {
+                "name": "MakeHistogram_AutoXAxisRange",
+                "value": "true"
+            }
+        ]
+    }
+}

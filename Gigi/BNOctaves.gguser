@@ -1,24 +1,20 @@
 {
     "version": "2.0",
     "snapshot": {
-        "resourceViewNodeIndex": 6,
-        "resourceViewResourceIndex": 3,
+        "resourceViewNodeIndex": 0,
+        "resourceViewResourceIndex": 8,
         "savedVariables": [
             {
                 "name": "NoiseType",
-                "value": "6"
+                "value": "0"
             },
             {
                 "name": "NumberOfOctaves",
-                "value": "32"
+                "value": "4"
             },
             {
                 "name": "DifferentNoisePerOctave",
                 "value": "true"
-            },
-            {
-                "name": "DivideByOctaveCount",
-                "value": "false"
             },
             {
                 "name": "MakeHistogram_ChannelDotProduct",

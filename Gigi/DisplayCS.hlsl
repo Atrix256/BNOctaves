@@ -85,13 +85,23 @@ float SampleNoiseTexture(uint2 px, uint octave)
 		case NoiseTypes::R2:
 		{
 			px = (px * (1 << octave));
+			if (/*$(Variable:DifferentNoisePerOctave)*/ && octave > 0)
+			{
+				uint rng = wang_hash_init(uint3(1337, 255, octave));
+				px += uint2(wang_hash_uint(rng) % 512, wang_hash_uint(rng) % 512);
+			}
 			return R2LDG(px);
 		}
 		case NoiseTypes::IGN:
 		{
 			px = (px * (1 << octave));
+			if (/*$(Variable:DifferentNoisePerOctave)*/ && octave > 0)
+			{
+				uint rng = wang_hash_init(uint3(1337, 255, octave));
+				px += uint2(wang_hash_uint(rng) % 512, wang_hash_uint(rng) % 512);
+			}
 			return IGNLDG(px);
-		}		
+		}
 	}
 
 	return 0.0f;
@@ -102,11 +112,14 @@ float SampleNoiseTexture(uint2 px, uint octave)
 	uint2 px = DTid.xy;
 	float ret = 0.0f;
 
+	float totalWeight = 0.0f;
 	for (uint octave = 0; octave < /*$(Variable:NumberOfOctaves)*/; ++octave)
-		ret += SampleNoiseTexture(px, octave) * 1.0f / float(octave + 1);
-
-	if (/*$(Variable:DivideByOctaveCount)*/)
-		ret /= float(/*$(Variable:NumberOfOctaves)*/);
+	{
+		float weight = 1.0f / float(1 << octave);
+		ret += SampleNoiseTexture(px, octave) * weight;
+		totalWeight += weight;
+	}
+	ret /= totalWeight;
 
 	Output[px] = ret.x;
 	OutputF[px] = ret.x;
@@ -118,11 +131,6 @@ Shader Resources:
 */
 /*
 TODO:
-- implement all the noise types
 - make a DFT magnitude subgraph node? could show both the input texture DFT and the output.
  - should let you normalize result, and also option to remove DC
-- could also do it with R2 and IGN
-- could also make a histogram graph, to see if it is going gaussian or anything?
-
-- for R2 and IGN, if DifferentTexturePerOctave is true, could add a white noise 2d random offset to px?
 */

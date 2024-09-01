@@ -5,7 +5,7 @@
 {
 	uint2 px = DTid.xy;
 
-	float value = dot(Input[px].xyzw, /*$(Variable:ChannelDotProduct)*/);
+	float value = dot(Input[px].xyzw, float4/*$(Variable:ChannelDotProduct)*/);
 	uint valueU = asuint(value);
 	
 	if (/*$(Variable:AutoXAxisRange)*/)

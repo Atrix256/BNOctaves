@@ -23,6 +23,13 @@
             "type": "Bool",
             "dflt": "false",
             "visibility": "User"
+        },
+        {
+            "name": "ChannelDotProduct",
+            "comment": "Histogram and DFT need a scalar. Dotting a pixel value against this is how it gets that scalar",
+            "type": "Float4",
+            "Const": true,
+            "dflt": "1.0f, 0.0f, 0.0f, 0.0f"
         }
     ],
     "shaders": [
@@ -40,6 +47,33 @@
                     "name": "OutputF",
                     "type": "Texture",
                     "access": "UAV"
+                }
+            ]
+        },
+        {
+            "name": "MakeCombinedOutputCS",
+            "fileName": "MakeCombinedOutputCS.hlsl",
+            "entryPoint": "csmain",
+            "resources": [
+                {
+                    "name": "CombinedOutput",
+                    "type": "Texture",
+                    "access": "UAV"
+                },
+                {
+                    "name": "Noise",
+                    "type": "Texture",
+                    "access": "SRV"
+                },
+                {
+                    "name": "Histogram",
+                    "type": "Texture",
+                    "access": "SRV"
+                },
+                {
+                    "name": "DFT",
+                    "type": "Texture",
+                    "access": "SRV"
                 }
             ]
         }
@@ -124,7 +158,7 @@
             "actionSubGraph": {
                 "name": "MakeHistogram",
                 "editorPos": [
-                    183.0,
+                    191.0,
                     2.0
                 ],
                 "linkProperties": [
@@ -185,7 +219,8 @@
                 "variableSettings": [
                     {
                         "name": "ChannelDotProduct",
-                        "visibility": "User"
+                        "visibility": "User",
+                        "replaceWithStr": "ChannelDotProduct"
                     },
                     {
                         "name": "NumBuckets",
@@ -204,6 +239,133 @@
                         "visibility": "User"
                     }
                 ]
+            }
+        },
+        {
+            "actionSubGraph": {
+                "name": "MakeDFT",
+                "editorPos": [
+                    188.0,
+                    114.0
+                ],
+                "linkProperties": [
+                    {},
+                    {}
+                ],
+                "connections": [
+                    {
+                        "srcPin": "Input",
+                        "dstNode": "Display",
+                        "dstPin": "OutputF"
+                    },
+                    {
+                        "srcPin": "DFTMagnitude"
+                    }
+                ],
+                "fileName": "DFT\\DFT.gg",
+                "subGraphData": {
+                    "importedResources": [
+                        "Input"
+                    ],
+                    "exportedResources": [
+                        "DFTMagnitude"
+                    ],
+                    "variables": [
+                        {
+                            "name": "ChannelDotProduct",
+                            "visibility": "User"
+                        },
+                        {
+                            "name": "RemoveDC",
+                            "visibility": "User"
+                        },
+                        {
+                            "name": "LogSpaceMagnitude",
+                            "visibility": "User"
+                        }
+                    ]
+                },
+                "variableSettings": [
+                    {
+                        "name": "ChannelDotProduct",
+                        "visibility": "User",
+                        "replaceWithStr": "ChannelDotProduct"
+                    },
+                    {
+                        "name": "RemoveDC",
+                        "visibility": "User"
+                    },
+                    {
+                        "name": "LogSpaceMagnitude",
+                        "visibility": "User"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceTexture": {
+                "name": "CombinedOutput",
+                "editorPos": [
+                    179.0,
+                    -62.0
+                ],
+                "visibility": "Exported",
+                "format": {
+                    "format": "RGBA8_Unorm"
+                },
+                "size": {
+                    "multiply": [
+                        256,
+                        256,
+                        1
+                    ]
+                }
+            }
+        },
+        {
+            "actionComputeShader": {
+                "name": "MakeCombinedOutput",
+                "editorPos": [
+                    405.0,
+                    -1.0
+                ],
+                "linkProperties": [
+                    {},
+                    {},
+                    {},
+                    {},
+                    {}
+                ],
+                "connections": [
+                    {
+                        "srcPin": "CombinedOutput",
+                        "dstNode": "CombinedOutput",
+                        "dstPin": "resource"
+                    },
+                    {
+                        "srcPin": "Noise",
+                        "dstNode": "MakeHistogram",
+                        "dstPin": "Input"
+                    },
+                    {
+                        "srcPin": "DFT",
+                        "dstNode": "MakeDFT",
+                        "dstPin": "DFTMagnitude"
+                    },
+                    {
+                        "srcPin": "Histogram",
+                        "dstNode": "MakeHistogram",
+                        "dstPin": "Graph"
+                    }
+                ],
+                "shader": {
+                    "name": "MakeCombinedOutputCS"
+                },
+                "dispatchSize": {
+                    "node": {
+                        "name": "CombinedOutput"
+                    }
+                }
             }
         }
     ],

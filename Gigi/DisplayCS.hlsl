@@ -129,8 +129,3 @@ float SampleNoiseTexture(uint2 px, uint octave)
 Shader Resources:
 	Texture Output (as UAV)
 */
-/*
-TODO:
-- make a DFT magnitude subgraph node? could show both the input texture DFT and the output.
- - should let you normalize result, and also option to remove DC
-*/

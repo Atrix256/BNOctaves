@@ -5,7 +5,7 @@
 {
 	uint2 px = DTid.xy;
 
-	float value = dot(Input[px].xyzw, /*$(Variable:ChannelDotProduct)*/);
+	float value = dot(Input[px].xyzw, float4/*$(Variable:ChannelDotProduct)*/);
 	float valuePercent = (value - asfloat(MinMaxValue[0].x)) / (asfloat(MinMaxValue[0].y) - asfloat(MinMaxValue[0].x));
 
 	uint bucketIndex = uint(valuePercent * float(/*$(Variable:NumBuckets)*/-1));

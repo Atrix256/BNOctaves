@@ -1,8 +1,8 @@
 {
     "version": "2.0",
     "snapshot": {
-        "resourceViewNodeIndex": 0,
-        "resourceViewResourceIndex": 8,
+        "resourceViewNodeIndex": 4,
+        "resourceViewResourceIndex": 4,
         "savedVariables": [
             {
                 "name": "NoiseType",
@@ -10,15 +10,11 @@
             },
             {
                 "name": "NumberOfOctaves",
-                "value": "4"
+                "value": "1"
             },
             {
                 "name": "DifferentNoisePerOctave",
-                "value": "true"
-            },
-            {
-                "name": "MakeHistogram_ChannelDotProduct",
-                "value": "1.000000,0.000000,0.000000,0.000000"
+                "value": "false"
             },
             {
                 "name": "MakeHistogram_NumBuckets",
@@ -26,7 +22,7 @@
             },
             {
                 "name": "MakeHistogram_GraphSize",
-                "value": "512,256"
+                "value": "256,128"
             },
             {
                 "name": "MakeHistogram_XAxisRange",
@@ -35,7 +31,60 @@
             {
                 "name": "MakeHistogram_AutoXAxisRange",
                 "value": "true"
+            },
+            {
+                "name": "MakeDFT_RemoveDC",
+                "value": "false"
+            },
+            {
+                "name": "MakeDFT_LogSpaceMagnitude",
+                "value": "true"
             }
         ]
-    }
+    },
+    "snapshots": [
+        {
+            "name": "Output",
+            "resourceViewNodeIndex": 4,
+            "resourceViewResourceIndex": 4,
+            "savedVariables": [
+                {
+                    "name": "NoiseType",
+                    "value": "0"
+                },
+                {
+                    "name": "NumberOfOctaves",
+                    "value": "1"
+                },
+                {
+                    "name": "DifferentNoisePerOctave",
+                    "value": "false"
+                },
+                {
+                    "name": "MakeHistogram_NumBuckets",
+                    "value": "256"
+                },
+                {
+                    "name": "MakeHistogram_GraphSize",
+                    "value": "256,128"
+                },
+                {
+                    "name": "MakeHistogram_XAxisRange",
+                    "value": "0.000000,1.000000"
+                },
+                {
+                    "name": "MakeHistogram_AutoXAxisRange",
+                    "value": "true"
+                },
+                {
+                    "name": "MakeDFT_RemoveDC",
+                    "value": "false"
+                },
+                {
+                    "name": "MakeDFT_LogSpaceMagnitude",
+                    "value": "true"
+                }
+            ]
+        }
+    ]
 }

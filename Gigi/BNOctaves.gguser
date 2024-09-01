@@ -6,15 +6,19 @@
         "savedVariables": [
             {
                 "name": "NoiseType",
-                "value": "0"
+                "value": "5"
             },
             {
                 "name": "NumberOfOctaves",
-                "value": "1"
+                "value": "8"
             },
             {
                 "name": "DifferentNoisePerOctave",
-                "value": "false"
+                "value": "true"
+            },
+            {
+                "name": "PerlinCellSize",
+                "value": "128"
             },
             {
                 "name": "MakeHistogram_NumBuckets",
@@ -30,6 +34,10 @@
             },
             {
                 "name": "MakeHistogram_AutoXAxisRange",
+                "value": "true"
+            },
+            {
+                "name": "MakeHistogram_ZeroMinMaxBucket",
                 "value": "true"
             },
             {

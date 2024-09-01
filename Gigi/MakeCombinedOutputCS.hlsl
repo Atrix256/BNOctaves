@@ -31,13 +31,15 @@ Shader Resources:
 
 /*
 TODO:
+* maybe we can make a "bias" value added to the perlin noise?
+* make a random seed field as a user parameter, to be able to change the places white noise is used (like in perlin noise)
 * make sure this works with the RELEASED gigi. you have "viewer user file v2" for instance.
-* add perlin noise as a noise option.
-* generate DX12 app code for this demo and share that too?
+* generate DX12 app code for this demo and share that too
 
 Blog:
 * where to get gigi and the tutorial
 * the repo of this technique, which includes the Gigi files, as well as generated dx12.
 * one of the coolest features of Gigi IMO is that you can replace a child graph parameter with a constant value from the parent graph, which makes it a literal instead of a variable. I did this with the channel dot product, and combined the 2 subgraph settings into 1 in the parent.
+* show gigi editor and viewer shots.
 
 */

@@ -32,6 +32,13 @@
             "type": "Bool",
             "dflt": "true",
             "visibility": "User"
+        },
+        {
+            "name": "ZeroMinMaxBucket",
+            "comment": "If values are clamped to a min and max value, the min and max bucket will have too many counts in them. This option zeros them out to make the rest of the data easier to see.",
+            "type": "Bool",
+            "dflt": "false",
+            "visibility": "User"
         }
     ],
     "shaders": [

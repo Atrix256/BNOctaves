@@ -25,6 +25,12 @@
             "visibility": "User"
         },
         {
+            "name": "PerlinCellSize",
+            "type": "Uint",
+            "dflt": "16",
+            "visibility": "User"
+        },
+        {
             "name": "ChannelDotProduct",
             "comment": "Histogram and DFT need a scalar. Dotting a pixel value against this is how it gets that scalar",
             "type": "Float4",
@@ -213,6 +219,10 @@
                         {
                             "name": "AutoXAxisRange",
                             "visibility": "User"
+                        },
+                        {
+                            "name": "ZeroMinMaxBucket",
+                            "visibility": "User"
                         }
                     ]
                 },
@@ -236,6 +246,10 @@
                     },
                     {
                         "name": "AutoXAxisRange",
+                        "visibility": "User"
+                    },
+                    {
+                        "name": "ZeroMinMaxBucket",
                         "visibility": "User"
                     }
                 ]
@@ -387,6 +401,9 @@
                 },
                 {
                     "label": "Box5x5"
+                },
+                {
+                    "label": "Perlin"
                 },
                 {
                     "label": "R2"

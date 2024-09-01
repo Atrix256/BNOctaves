@@ -1,6 +1,8 @@
 // Unnamed technique, shader DisplayCS
 /*$(ShaderResources)*/
 
+static const float c_pi = 3.14159265359f;
+
 uint wang_hash_init(uint3 seed)
 {
 	return uint(seed.x * uint(1973) + seed.y * uint(9277) + seed.z * uint(26699)) | uint(1);
@@ -39,6 +41,57 @@ float IGNLDG(uint2 pos)
 	return (52.9829189f * ((0.06711056f * float(pos.x) + 0.00583715f * float(pos.y)) % 1)) % 1;
 }
 
+// For perlin noise
+float SmootherStep(float edge0, float edge1, float x)
+{
+    if (edge0 == edge1)
+        return edge0;
+
+    x = clamp((x - edge0) / (edge1 - edge0), 0.0f, 1.0f);
+
+    return 6.0f * x * x * x * x * x - 15.0f * x * x * x * x + 10.0f * x * x * x;
+}
+
+float2 PerlinNoise_UnitVectorAtCell(uint2 cellIndex, uint octave)
+{
+	uint rng = wang_hash_init(uint3(cellIndex, /*$(Variable:DifferentNoisePerOctave)*/ ? octave : 0));
+	float angle = wang_hash_float01(rng) * c_pi * 2.0f;
+	return float2(cos(angle), sin(angle));
+}
+
+float PerlinNoise_DotGridGradient(uint2 cellPos, uint2 pos, uint cellSize, uint octave)
+{
+	float2 gradient = PerlinNoise_UnitVectorAtCell(cellPos / cellSize, octave);
+	int2 delta = int2(pos) - int2(cellPos);
+	float2 deltaF = float2(delta) / float(cellSize);
+	return dot(deltaF, gradient);
+}
+
+// Perlin Noise
+float PerlinNoise(uint2 pos, uint cellSize, uint octave)
+{
+	uint2 cellIndex = pos / cellSize;
+	uint2 cellFractionU = pos - (cellIndex * cellSize);
+	float2 cellFraction = float2(cellFractionU) / float(cellSize);
+
+	// smoothstep the UVs
+    cellFraction.x = SmootherStep(0.0f, 1.0f, cellFraction[0]);
+    cellFraction.y = SmootherStep(0.0f, 1.0f, cellFraction[1]);	
+
+    // get the 4 corners of the square
+    float dg_00 = PerlinNoise_DotGridGradient((cellIndex + uint2( 0, 0 )) * cellSize, pos, cellSize, octave);
+    float dg_01 = PerlinNoise_DotGridGradient((cellIndex + uint2( 0, 1 )) * cellSize, pos, cellSize, octave);
+    float dg_10 = PerlinNoise_DotGridGradient((cellIndex + uint2( 1, 0 )) * cellSize, pos, cellSize, octave);
+    float dg_11 = PerlinNoise_DotGridGradient((cellIndex + uint2( 1, 1 )) * cellSize, pos, cellSize, octave);
+
+    // X interpolate
+    float dg_x0 = lerp(dg_00, dg_10, cellFraction.x);
+    float dg_x1 = lerp(dg_01, dg_11, cellFraction.x);
+
+    // Y interpolate
+    return lerp(dg_x0, dg_x1, cellFraction.y);
+}
+
 float SampleNoiseTexture(uint2 px, uint octave)
 {
 	switch(/*$(Variable:NoiseType)*/)
@@ -47,13 +100,13 @@ float SampleNoiseTexture(uint2 px, uint octave)
 		{
 			uint3 dims;
 			/*$(Image2DArray:Assets/real_uniform_gauss1_0_Gauss10_separate05_%i.png:R8_Unorm:float:false)*/.GetDimensions(dims.x, dims.y, dims.z);
-			px = (px * (1 << octave)) % dims.xy;
+			px = (px * (1U << octave)) % dims.xy;
 			uint textureIndex = /*$(Variable:DifferentNoisePerOctave)*/ ? (octave % dims.z ) : 0;
 			return /*$(Image2DArray:Assets/real_uniform_gauss1_0_Gauss10_separate05_%i.png:R8_Unorm:float:false)*/[uint3(px, textureIndex)];
 		}		
 		case NoiseTypes::White:
 		{
-			px = (px * (1 << octave));
+			px = (px * (1U << octave));
 			uint textureIndex = /*$(Variable:DifferentNoisePerOctave)*/ ? octave : 0;
 			uint rng = wang_hash_init(uint3(px, textureIndex));
 			return wang_hash_float01(rng);
@@ -62,7 +115,7 @@ float SampleNoiseTexture(uint2 px, uint octave)
 		{
 			uint3 dims;
 			/*$(Image2DArray:Assets/real_uniform_binomial3x3_Gauss10_separate05_%i.png:R8_Unorm:float:false)*/.GetDimensions(dims.x, dims.y, dims.z);
-			px = (px * (1 << octave)) % dims.xy;
+			px = (px * (1U << octave)) % dims.xy;
 			uint textureIndex = /*$(Variable:DifferentNoisePerOctave)*/ ? (octave % dims.z ) : 0;
 			return /*$(Image2DArray:Assets/real_uniform_binomial3x3_Gauss10_separate05_%i.png:R8_Unorm:float:false)*/[uint3(px, textureIndex)];
 		}
@@ -70,7 +123,7 @@ float SampleNoiseTexture(uint2 px, uint octave)
 		{
 			uint3 dims;
 			/*$(Image2DArray:Assets/real_uniform_box3x3_Gauss10_separate05_%i.png:R8_Unorm:float:false)*/.GetDimensions(dims.x, dims.y, dims.z);
-			px = (px * (1 << octave)) % dims.xy;
+			px = (px * (1U << octave)) % dims.xy;
 			uint textureIndex = /*$(Variable:DifferentNoisePerOctave)*/ ? (octave % dims.z ) : 0;
 			return /*$(Image2DArray:Assets/real_uniform_box3x3_Gauss10_separate05_%i.png:R8_Unorm:float:false)*/[uint3(px, textureIndex)];
 		}
@@ -78,13 +131,18 @@ float SampleNoiseTexture(uint2 px, uint octave)
 		{
 			uint3 dims;
 			/*$(Image2DArray:Assets/real_uniform_box5x5_Gauss10_separate05_%i.png:R8_Unorm:float:false)*/.GetDimensions(dims.x, dims.y, dims.z);
-			px = (px * (1 << octave)) % dims.xy;
+			px = (px * (1U << octave)) % dims.xy;
 			uint textureIndex = /*$(Variable:DifferentNoisePerOctave)*/ ? (octave % dims.z ) : 0;
 			return /*$(Image2DArray:Assets/real_uniform_box5x5_Gauss10_separate05_%i.png:R8_Unorm:float:false)*/[uint3(px, textureIndex)];
 		}
+		case NoiseTypes::Perlin:
+		{
+			px = (px * (1U << octave));
+			return PerlinNoise(px, /*$(Variable:PerlinCellSize)*/, octave);
+		}
 		case NoiseTypes::R2:
 		{
-			px = (px * (1 << octave));
+			px = (px * (1U << octave));
 			if (/*$(Variable:DifferentNoisePerOctave)*/ && octave > 0)
 			{
 				uint rng = wang_hash_init(uint3(1337, 255, octave));
@@ -94,7 +152,7 @@ float SampleNoiseTexture(uint2 px, uint octave)
 		}
 		case NoiseTypes::IGN:
 		{
-			px = (px * (1 << octave));
+			px = (px * (1U << octave));
 			if (/*$(Variable:DifferentNoisePerOctave)*/ && octave > 0)
 			{
 				uint rng = wang_hash_init(uint3(1337, 255, octave));
@@ -115,11 +173,14 @@ float SampleNoiseTexture(uint2 px, uint octave)
 	float totalWeight = 0.0f;
 	for (uint octave = 0; octave < /*$(Variable:NumberOfOctaves)*/; ++octave)
 	{
-		float weight = 1.0f / float(1 << octave);
+		float weight = 1.0f / float(1U << octave);
 		ret += SampleNoiseTexture(px, octave) * weight;
 		totalWeight += weight;
 	}
 	ret /= totalWeight;
+
+	// perlin can go < 0. clamp it to not do that.
+	ret = max(ret, 0.0f);
 
 	Output[px] = ret.x;
 	OutputF[px] = ret.x;

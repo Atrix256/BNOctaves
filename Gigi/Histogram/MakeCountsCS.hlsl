@@ -10,6 +10,10 @@
 
 	uint bucketIndex = uint(valuePercent * float(/*$(Variable:NumBuckets)*/-1));
 
+	// don't count min and max buckets if we aren't supposed to
+	if (/*$(Variable:ZeroMinMaxBucket)*/ && (bucketIndex == 0 || bucketIndex == (/*$(Variable:NumBuckets)*/-1)))
+		return;
+
 	uint oldValue;
 	InterlockedAdd(Counts[bucketIndex+1], 1, oldValue);
 

@@ -17,35 +17,43 @@
                 "value": "true"
             },
             {
+                "name": "RNGSeed",
+                "value": "1337"
+            },
+            {
                 "name": "PerlinCellSize",
                 "value": "128"
             },
             {
-                "name": "MakeHistogram_NumBuckets",
-                "value": "256"
-            },
-            {
-                "name": "MakeHistogram_GraphSize",
-                "value": "256,128"
-            },
-            {
-                "name": "MakeHistogram_XAxisRange",
+                "name": "PerlinMinMax",
                 "value": "0.000000,1.000000"
             },
             {
-                "name": "MakeHistogram_AutoXAxisRange",
+                "name": "Histogram_NumBuckets",
+                "value": "256"
+            },
+            {
+                "name": "Histogram_GraphSize",
+                "value": "256,128"
+            },
+            {
+                "name": "Histogram_XAxisRange",
+                "value": "0.000000,1.000000"
+            },
+            {
+                "name": "Histogram_AutoXAxisRange",
                 "value": "true"
             },
             {
-                "name": "MakeHistogram_ZeroMinMaxBucket",
+                "name": "Histogram_ZeroMinMaxBucket",
                 "value": "true"
             },
             {
-                "name": "MakeDFT_RemoveDC",
-                "value": "false"
+                "name": "DFT_RemoveDC",
+                "value": "true"
             },
             {
-                "name": "MakeDFT_LogSpaceMagnitude",
+                "name": "DFT_LogSpaceMagnitude",
                 "value": "true"
             }
         ]

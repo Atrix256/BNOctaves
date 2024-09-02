@@ -25,9 +25,23 @@
             "visibility": "User"
         },
         {
+            "name": "RNGSeed",
+            "comment": "A PRNG is used for various things, change this value to change thats eed.",
+            "type": "Uint",
+            "dflt": "1337",
+            "visibility": "User"
+        },
+        {
             "name": "PerlinCellSize",
             "type": "Uint",
-            "dflt": "16",
+            "dflt": "128",
+            "visibility": "User"
+        },
+        {
+            "name": "PerlinMinMax",
+            "comment": "Perlin noise can go below zero which causes problems in this demo. To help that, this is the range of values which are mapped to [0,1]. Anything lower than 0 is clipped to 0 after the remapping.",
+            "type": "Float2",
+            "dflt": "0.0f, 1.0f",
             "visibility": "User"
         },
         {
@@ -162,7 +176,7 @@
         },
         {
             "actionSubGraph": {
-                "name": "MakeHistogram",
+                "name": "Histogram",
                 "editorPos": [
                     191.0,
                     2.0
@@ -257,7 +271,7 @@
         },
         {
             "actionSubGraph": {
-                "name": "MakeDFT",
+                "name": "DFT",
                 "editorPos": [
                     188.0,
                     114.0
@@ -358,17 +372,17 @@
                     },
                     {
                         "srcPin": "Noise",
-                        "dstNode": "MakeHistogram",
+                        "dstNode": "Histogram",
                         "dstPin": "Input"
                     },
                     {
                         "srcPin": "DFT",
-                        "dstNode": "MakeDFT",
+                        "dstNode": "DFT",
                         "dstPin": "DFTMagnitude"
                     },
                     {
                         "srcPin": "Histogram",
-                        "dstNode": "MakeHistogram",
+                        "dstNode": "Histogram",
                         "dstPin": "Graph"
                     }
                 ],

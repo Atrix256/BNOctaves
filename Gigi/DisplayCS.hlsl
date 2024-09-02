@@ -54,7 +54,7 @@ float SmootherStep(float edge0, float edge1, float x)
 
 float2 PerlinNoise_UnitVectorAtCell(uint2 cellIndex, uint octave)
 {
-	uint rng = wang_hash_init(uint3(cellIndex, /*$(Variable:DifferentNoisePerOctave)*/ ? octave : 0));
+	uint rng = wang_hash_init(uint3(cellIndex, /*$(Variable:RNGSeed)*/ ^ (/*$(Variable:DifferentNoisePerOctave)*/ ? octave : 0)));
 	float angle = wang_hash_float01(rng) * c_pi * 2.0f;
 	return float2(cos(angle), sin(angle));
 }
@@ -108,7 +108,7 @@ float SampleNoiseTexture(uint2 px, uint octave)
 		{
 			px = (px * (1U << octave));
 			uint textureIndex = /*$(Variable:DifferentNoisePerOctave)*/ ? octave : 0;
-			uint rng = wang_hash_init(uint3(px, textureIndex));
+			uint rng = wang_hash_init(uint3(px, /*$(Variable:RNGSeed)*/ ^ textureIndex));
 			return wang_hash_float01(rng);
 		}
 		case NoiseTypes::Binomial3x3:
@@ -145,7 +145,7 @@ float SampleNoiseTexture(uint2 px, uint octave)
 			px = (px * (1U << octave));
 			if (/*$(Variable:DifferentNoisePerOctave)*/ && octave > 0)
 			{
-				uint rng = wang_hash_init(uint3(1337, 255, octave));
+				uint rng = wang_hash_init(uint3(1337, 255, /*$(Variable:RNGSeed)*/ ^ octave));
 				px += uint2(wang_hash_uint(rng) % 512, wang_hash_uint(rng) % 512);
 			}
 			return R2LDG(px);
@@ -155,7 +155,7 @@ float SampleNoiseTexture(uint2 px, uint octave)
 			px = (px * (1U << octave));
 			if (/*$(Variable:DifferentNoisePerOctave)*/ && octave > 0)
 			{
-				uint rng = wang_hash_init(uint3(1337, 255, octave));
+				uint rng = wang_hash_init(uint3(1337, 255, /*$(Variable:RNGSeed)*/ ^ octave));
 				px += uint2(wang_hash_uint(rng) % 512, wang_hash_uint(rng) % 512);
 			}
 			return IGNLDG(px);
@@ -179,8 +179,12 @@ float SampleNoiseTexture(uint2 px, uint octave)
 	}
 	ret /= totalWeight;
 
-	// perlin can go < 0. clamp it to not do that.
-	ret = max(ret, 0.0f);
+	// remap perlin using PerlinMinMax, then clip anything below 0.
+	if (/*$(Variable:NoiseType)*/ == NoiseTypes::Perlin)
+	{
+		float percent = (ret - /*$(Variable:PerlinMinMax)*/.x) / (/*$(Variable:PerlinMinMax)*/.y - /*$(Variable:PerlinMinMax)*/.x);
+		ret = max(percent, 0.0f);
+	}
 
 	Output[px] = ret.x;
 	OutputF[px] = ret.x;

@@ -13,7 +13,7 @@
             "name": "RemoveDC",
             "comment": "DC (0hz) is often a large spike that makes it hard to see the rest of the frequencies. Use this to set DC to zero.",
             "type": "Bool",
-            "dflt": "true",
+            "dflt": "false",
             "visibility": "User"
         },
         {

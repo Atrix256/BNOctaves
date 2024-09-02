@@ -20,6 +20,7 @@ namespace BNOctaves
             case NoiseTypes::Perlin: return Py_BuildValue("s", "Perlin");
             case NoiseTypes::R2: return Py_BuildValue("s", "R2");
             case NoiseTypes::IGN: return Py_BuildValue("s", "IGN");
+            case NoiseTypes::BlueReverse: return Py_BuildValue("s", "BlueReverse");
             default: return Py_BuildValue("s", "<invalid NoiseTypes value>");
         }
     }
@@ -127,6 +128,24 @@ namespace BNOctaves
             return PyErr_Format(PyExc_IndexError, __FUNCTION__, "() : index % i is out of range(count = % i)", contextIndex, Context::GetContextCount());
 
         context->m_input.variable_PerlinMinMax = value;
+
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+
+    inline PyObject* Set_BlueReverseStartSize(PyObject* self, PyObject* args)
+    {
+        int contextIndex;
+        uint value;
+
+        if (!PyArg_ParseTuple(args, "iI:Set_BlueReverseStartSize", &contextIndex, &value))
+            return PyErr_Format(PyExc_TypeError, "type error");
+
+        Context* context = Context::GetContext(contextIndex);
+        if (!context)
+            return PyErr_Format(PyExc_IndexError, __FUNCTION__, "() : index % i is out of range(count = % i)", contextIndex, Context::GetContextCount());
+
+        context->m_input.variable_BlueReverseStartSize = value;
 
         Py_INCREF(Py_None);
         return Py_None;
@@ -266,6 +285,7 @@ namespace BNOctaves
         {"Set_RNGSeed", Set_RNGSeed, METH_VARARGS, "A PRNG is used for various things, change this value to change thats eed."},
         {"Set_PerlinCellSize", Set_PerlinCellSize, METH_VARARGS, ""},
         {"Set_PerlinMinMax", Set_PerlinMinMax, METH_VARARGS, "Perlin noise can go below zero which causes problems in this demo. To help that, this is the range of values which are mapped to [0,1]. Anything lower than 0 is clipped to 0 after the remapping."},
+        {"Set_BlueReverseStartSize", Set_BlueReverseStartSize, METH_VARARGS, ""},
         {"Set_Histogram_NumBuckets", Set_Histogram_NumBuckets, METH_VARARGS, ""},
         {"Set_Histogram_GraphSize", Set_Histogram_GraphSize, METH_VARARGS, ""},
         {"Set_Histogram_XAxisRange", Set_Histogram_XAxisRange, METH_VARARGS, ""},
@@ -292,6 +312,7 @@ namespace BNOctaves
         PyModule_AddIntConstant(module, "NoiseTypes_Perlin", 5);
         PyModule_AddIntConstant(module, "NoiseTypes_R2", 6);
         PyModule_AddIntConstant(module, "NoiseTypes_IGN", 7);
+        PyModule_AddIntConstant(module, "NoiseTypes_BlueReverse", 8);
         return module;
     }
 };

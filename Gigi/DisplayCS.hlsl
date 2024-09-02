@@ -100,13 +100,13 @@ float SampleNoiseTexture(uint2 px, uint octave)
 		{
 			uint3 dims;
 			/*$(Image2DArray:Assets/real_uniform_gauss1_0_Gauss10_separate05_%i.png:R8_Unorm:float:false)*/.GetDimensions(dims.x, dims.y, dims.z);
-			px = (px * (1U << octave)) % dims.xy;
+			px /= (1U << octave);
 			uint textureIndex = /*$(Variable:DifferentNoisePerOctave)*/ ? (octave % dims.z ) : 0;
 			return /*$(Image2DArray:Assets/real_uniform_gauss1_0_Gauss10_separate05_%i.png:R8_Unorm:float:false)*/[uint3(px, textureIndex)];
 		}		
 		case NoiseTypes::White:
 		{
-			px = (px * (1U << octave));
+			px /= (1U << octave);
 			uint textureIndex = /*$(Variable:DifferentNoisePerOctave)*/ ? octave : 0;
 			uint rng = wang_hash_init(uint3(px, /*$(Variable:RNGSeed)*/ ^ textureIndex));
 			return wang_hash_float01(rng);
@@ -115,7 +115,7 @@ float SampleNoiseTexture(uint2 px, uint octave)
 		{
 			uint3 dims;
 			/*$(Image2DArray:Assets/real_uniform_binomial3x3_Gauss10_separate05_%i.png:R8_Unorm:float:false)*/.GetDimensions(dims.x, dims.y, dims.z);
-			px = (px * (1U << octave)) % dims.xy;
+			px /= (1U << octave);
 			uint textureIndex = /*$(Variable:DifferentNoisePerOctave)*/ ? (octave % dims.z ) : 0;
 			return /*$(Image2DArray:Assets/real_uniform_binomial3x3_Gauss10_separate05_%i.png:R8_Unorm:float:false)*/[uint3(px, textureIndex)];
 		}
@@ -123,7 +123,7 @@ float SampleNoiseTexture(uint2 px, uint octave)
 		{
 			uint3 dims;
 			/*$(Image2DArray:Assets/real_uniform_box3x3_Gauss10_separate05_%i.png:R8_Unorm:float:false)*/.GetDimensions(dims.x, dims.y, dims.z);
-			px = (px * (1U << octave)) % dims.xy;
+			px /= (1U << octave);
 			uint textureIndex = /*$(Variable:DifferentNoisePerOctave)*/ ? (octave % dims.z ) : 0;
 			return /*$(Image2DArray:Assets/real_uniform_box3x3_Gauss10_separate05_%i.png:R8_Unorm:float:false)*/[uint3(px, textureIndex)];
 		}
@@ -131,18 +131,19 @@ float SampleNoiseTexture(uint2 px, uint octave)
 		{
 			uint3 dims;
 			/*$(Image2DArray:Assets/real_uniform_box5x5_Gauss10_separate05_%i.png:R8_Unorm:float:false)*/.GetDimensions(dims.x, dims.y, dims.z);
-			px = (px * (1U << octave)) % dims.xy;
+			px /= (1U << octave);
 			uint textureIndex = /*$(Variable:DifferentNoisePerOctave)*/ ? (octave % dims.z ) : 0;
 			return /*$(Image2DArray:Assets/real_uniform_box5x5_Gauss10_separate05_%i.png:R8_Unorm:float:false)*/[uint3(px, textureIndex)];
 		}
 		case NoiseTypes::Perlin:
 		{
-			px = (px * (1U << octave));
-			return PerlinNoise(px, /*$(Variable:PerlinCellSize)*/, octave);
+			//px = (px * (1U << octave));
+			uint cellSize =  max(/*$(Variable:PerlinCellSize)*/ / (1U << octave), 1);
+			return PerlinNoise(px, cellSize, octave);
 		}
 		case NoiseTypes::R2:
 		{
-			px = (px * (1U << octave));
+			px /= (1U << octave);
 			if (/*$(Variable:DifferentNoisePerOctave)*/ && octave > 0)
 			{
 				uint rng = wang_hash_init(uint3(1337, 255, /*$(Variable:RNGSeed)*/ ^ octave));
@@ -152,13 +153,25 @@ float SampleNoiseTexture(uint2 px, uint octave)
 		}
 		case NoiseTypes::IGN:
 		{
-			px = (px * (1U << octave));
+			px /= (1U << octave);
 			if (/*$(Variable:DifferentNoisePerOctave)*/ && octave > 0)
 			{
 				uint rng = wang_hash_init(uint3(1337, 255, /*$(Variable:RNGSeed)*/ ^ octave));
 				px += uint2(wang_hash_uint(rng) % 512, wang_hash_uint(rng) % 512);
 			}
 			return IGNLDG(px);
+		}
+		case NoiseTypes::BlueReverse:
+		{
+			px *= (1U << octave);
+			px /= /*$(Variable:BlueReverseStartSize)*/;
+
+			uint3 dims;
+			/*$(Image2DArray:Assets/real_uniform_gauss1_0_Gauss10_separate05_%i.png:R8_Unorm:float:false)*/.GetDimensions(dims.x, dims.y, dims.z);
+			px = px % dims.xy;
+			uint textureIndex = /*$(Variable:DifferentNoisePerOctave)*/ ? (octave % dims.z ) : 0;
+
+			return /*$(Image2DArray:Assets/real_uniform_gauss1_0_Gauss10_separate05_%i.png:R8_Unorm:float:false)*/[uint3(px, textureIndex)];
 		}
 	}
 

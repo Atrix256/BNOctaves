@@ -11,6 +11,7 @@ struct NoiseTypes
     static const int Perlin = 5;
     static const int R2 = 6;
     static const int IGN = 7;
+    static const int BlueReverse = 8;
 };
 
 RWTexture2D<float4> CombinedOutput : register(u0);

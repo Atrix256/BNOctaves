@@ -27,6 +27,10 @@
             "value": "0.000000,1.000000"
         },
         {
+            "name": "BlueReverseStartSize",
+            "value": "64"
+        },
+        {
             "name": "Histogram_NumBuckets",
             "value": "256"
         },
@@ -48,7 +52,7 @@
         },
         {
             "name": "DFT_RemoveDC",
-            "value": "true"
+            "value": "false"
         },
         {
             "name": "DFT_LogSpaceMagnitude",

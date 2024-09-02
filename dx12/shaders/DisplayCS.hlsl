@@ -11,17 +11,18 @@ struct NoiseTypes
     static const int Perlin = 5;
     static const int R2 = 6;
     static const int IGN = 7;
+    static const int BlueReverse = 8;
 };
 
 struct Struct__DisplayCSCB
 {
+    uint BlueReverseStartSize;
     uint DifferentNoisePerOctave;
     int NoiseType;
     uint NumberOfOctaves;
     uint PerlinCellSize;
     float2 PerlinMinMax;
     uint RNGSeed;
-    float _padding0;
 };
 
 RWTexture2D<float4> Output : register(u0);
@@ -134,13 +135,13 @@ float SampleNoiseTexture(uint2 px, uint octave)
 		{
 			uint3 dims;
 			_loadedTexture_0.GetDimensions(dims.x, dims.y, dims.z);
-			px = (px * (1U << octave)) % dims.xy;
+			px /= (1U << octave);
 			uint textureIndex = _DisplayCSCB.DifferentNoisePerOctave ? (octave % dims.z ) : 0;
 			return _loadedTexture_0[uint3(px, textureIndex)];
 		}		
 		case NoiseTypes::White:
 		{
-			px = (px * (1U << octave));
+			px /= (1U << octave);
 			uint textureIndex = _DisplayCSCB.DifferentNoisePerOctave ? octave : 0;
 			uint rng = wang_hash_init(uint3(px, _DisplayCSCB.RNGSeed ^ textureIndex));
 			return wang_hash_float01(rng);
@@ -149,7 +150,7 @@ float SampleNoiseTexture(uint2 px, uint octave)
 		{
 			uint3 dims;
 			_loadedTexture_1.GetDimensions(dims.x, dims.y, dims.z);
-			px = (px * (1U << octave)) % dims.xy;
+			px /= (1U << octave);
 			uint textureIndex = _DisplayCSCB.DifferentNoisePerOctave ? (octave % dims.z ) : 0;
 			return _loadedTexture_1[uint3(px, textureIndex)];
 		}
@@ -157,7 +158,7 @@ float SampleNoiseTexture(uint2 px, uint octave)
 		{
 			uint3 dims;
 			_loadedTexture_2.GetDimensions(dims.x, dims.y, dims.z);
-			px = (px * (1U << octave)) % dims.xy;
+			px /= (1U << octave);
 			uint textureIndex = _DisplayCSCB.DifferentNoisePerOctave ? (octave % dims.z ) : 0;
 			return _loadedTexture_2[uint3(px, textureIndex)];
 		}
@@ -165,18 +166,19 @@ float SampleNoiseTexture(uint2 px, uint octave)
 		{
 			uint3 dims;
 			_loadedTexture_3.GetDimensions(dims.x, dims.y, dims.z);
-			px = (px * (1U << octave)) % dims.xy;
+			px /= (1U << octave);
 			uint textureIndex = _DisplayCSCB.DifferentNoisePerOctave ? (octave % dims.z ) : 0;
 			return _loadedTexture_3[uint3(px, textureIndex)];
 		}
 		case NoiseTypes::Perlin:
 		{
-			px = (px * (1U << octave));
-			return PerlinNoise(px, _DisplayCSCB.PerlinCellSize, octave);
+			//px = (px * (1U << octave));
+			uint cellSize =  max(_DisplayCSCB.PerlinCellSize / (1U << octave), 1);
+			return PerlinNoise(px, cellSize, octave);
 		}
 		case NoiseTypes::R2:
 		{
-			px = (px * (1U << octave));
+			px /= (1U << octave);
 			if (_DisplayCSCB.DifferentNoisePerOctave && octave > 0)
 			{
 				uint rng = wang_hash_init(uint3(1337, 255, _DisplayCSCB.RNGSeed ^ octave));
@@ -186,7 +188,7 @@ float SampleNoiseTexture(uint2 px, uint octave)
 		}
 		case NoiseTypes::IGN:
 		{
-			px = (px * (1U << octave));
+			px /= (1U << octave);
 			if (_DisplayCSCB.DifferentNoisePerOctave && octave > 0)
 			{
 				uint rng = wang_hash_init(uint3(1337, 255, _DisplayCSCB.RNGSeed ^ octave));
@@ -194,13 +196,25 @@ float SampleNoiseTexture(uint2 px, uint octave)
 			}
 			return IGNLDG(px);
 		}
+		case NoiseTypes::BlueReverse:
+		{
+			px *= (1U << octave);
+			px /= _DisplayCSCB.BlueReverseStartSize;
+
+			uint3 dims;
+			_loadedTexture_0.GetDimensions(dims.x, dims.y, dims.z);
+			px = px % dims.xy;
+			uint textureIndex = _DisplayCSCB.DifferentNoisePerOctave ? (octave % dims.z ) : 0;
+
+			return _loadedTexture_0[uint3(px, textureIndex)];
+		}
 	}
 
 	return 0.0f;
 }
 
 [numthreads(8, 8, 1)]
-#line 168
+#line 181
 void csmain(uint3 DTid : SV_DispatchThreadID)
 {
 	uint2 px = DTid.xy;

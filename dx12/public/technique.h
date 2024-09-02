@@ -51,12 +51,13 @@ namespace BNOctaves
             uint variable_RNGSeed = 1337;  // A PRNG is used for various things, change this value to change thats eed.
             uint variable_PerlinCellSize = 128;
             float2 variable_PerlinMinMax = {0.0f, 1.0f};  // Perlin noise can go below zero which causes problems in this demo. To help that, this is the range of values which are mapped to [0,1]. Anything lower than 0 is clipped to 0 after the remapping.
+            uint variable_BlueReverseStartSize = 64;
             uint variable_Histogram_NumBuckets = 256;
             uint2 variable_Histogram_GraphSize = {256, 128};
             float2 variable_Histogram_XAxisRange = {0.0f, 1.0f};
             bool variable_Histogram_AutoXAxisRange = true;
             bool variable_Histogram_ZeroMinMaxBucket = false;  // If values are clamped to a min and max value, the min and max bucket will have too many counts in them. This option zeros them out to make the rest of the data easier to see.
-            bool variable_DFT_RemoveDC = true;  // DC (0hz) is often a large spike that makes it hard to see the rest of the frequencies. Use this to set DC to zero.
+            bool variable_DFT_RemoveDC = false;  // DC (0hz) is often a large spike that makes it hard to see the rest of the frequencies. Use this to set DC to zero.
             bool variable_DFT_LogSpaceMagnitude = true;  // If true, show magnitude in log space
         };
         ContextInput m_input;

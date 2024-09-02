@@ -31,8 +31,9 @@ namespace BNOctaves
                 "Perlin",
                 "R2",
                 "IGN",
+                "BlueReverse",
             };
-            ImGui::Combo("NoiseType", (int*)&context->m_input.variable_NoiseType, labels, 8);
+            ImGui::Combo("NoiseType", (int*)&context->m_input.variable_NoiseType, labels, 9);
             ShowToolTip("The type of noise to use");
         }
         {
@@ -67,6 +68,12 @@ namespace BNOctaves
             ImGui::PopItemWidth();
             ImGui::PopID();
             ShowToolTip("Perlin noise can go below zero which causes problems in this demo. To help that, this is the range of values which are mapped to [0,1]. Anything lower than 0 is clipped to 0 after the remapping.");
+        }
+        {
+            int localVar = (int)context->m_input.variable_BlueReverseStartSize;
+            if(ImGui::InputInt("BlueReverseStartSize", &localVar, 0))
+                context->m_input.variable_BlueReverseStartSize = (unsigned int)localVar;
+            ShowToolTip("");
         }
         {
             int localVar = (int)context->m_input.variable_Histogram_NumBuckets;

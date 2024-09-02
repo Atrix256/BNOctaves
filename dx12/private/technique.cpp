@@ -1446,6 +1446,7 @@ namespace BNOctaves
 
         // Shader Constants: _DisplayCSCB
         {
+            context->m_internal.constantBuffer__DisplayCSCB_cpu.BlueReverseStartSize = context->m_input.variable_BlueReverseStartSize;
             context->m_internal.constantBuffer__DisplayCSCB_cpu.DifferentNoisePerOctave = context->m_input.variable_DifferentNoisePerOctave;
             context->m_internal.constantBuffer__DisplayCSCB_cpu.NoiseType = (int)context->m_input.variable_NoiseType;
             context->m_internal.constantBuffer__DisplayCSCB_cpu.NumberOfOctaves = context->m_input.variable_NumberOfOctaves;

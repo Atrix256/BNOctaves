@@ -45,6 +45,12 @@
             "visibility": "User"
         },
         {
+            "name": "BlueReverseStartSize",
+            "type": "Uint",
+            "dflt": "64",
+            "visibility": "User"
+        },
+        {
             "name": "ChannelDotProduct",
             "comment": "Histogram and DFT need a scalar. Dotting a pixel value against this is how it gets that scalar",
             "type": "Float4",
@@ -424,6 +430,9 @@
                 },
                 {
                     "label": "IGN"
+                },
+                {
+                    "label": "BlueReverse"
                 }
             ]
         }

@@ -31,6 +31,7 @@ namespace BNOctaves
         Perlin,
         R2,
         IGN,
+        BlueReverse,
     };
 
     inline const char* EnumToString(NoiseTypes value, bool displayString = false)
@@ -45,6 +46,7 @@ namespace BNOctaves
             case NoiseTypes::Perlin: return displayString ? "Perlin" : "Perlin";
             case NoiseTypes::R2: return displayString ? "R2" : "R2";
             case NoiseTypes::IGN: return displayString ? "IGN" : "IGN";
+            case NoiseTypes::BlueReverse: return displayString ? "BlueReverse" : "BlueReverse";
             default: return nullptr;
         }
     }
@@ -58,13 +60,13 @@ namespace BNOctaves
 
         struct Struct__DisplayCSCB
         {
+            uint BlueReverseStartSize = 64;
             unsigned int DifferentNoisePerOctave = false;  // If false, the same noise will be used for each octave. If true, a different noise, of the same type, will be used for each octave.
             int NoiseType = (int)NoiseTypes::Blue;  // The type of noise to use
             uint NumberOfOctaves = 3;  // How many octaves to use
             uint PerlinCellSize = 128;
             float2 PerlinMinMax = {0.0f, 1.0f};  // Perlin noise can go below zero which causes problems in this demo. To help that, this is the range of values which are mapped to [0,1]. Anything lower than 0 is clipped to 0 after the remapping.
             uint RNGSeed = 1337;  // A PRNG is used for various things, change this value to change thats eed.
-            float _padding0 = 0.000000f;  // Padding
         };
 
         struct Struct__Histogram_MakeCountsCSCB
@@ -90,7 +92,7 @@ namespace BNOctaves
 
         struct Struct__DFT_DFTCSCB
         {
-            unsigned int DFT_RemoveDC = true;  // DC (0hz) is often a large spike that makes it hard to see the rest of the frequencies. Use this to set DC to zero.
+            unsigned int DFT_RemoveDC = false;  // DC (0hz) is often a large spike that makes it hard to see the rest of the frequencies. Use this to set DC to zero.
             float3 _padding0 = {};  // Padding
         };
 

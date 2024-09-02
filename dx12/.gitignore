@@ -1,0 +1,10 @@
+BNOctaves.dir/
+BNOctaves.exe
+BNOctaves.exp
+BNOctaves.lib
+BNOctaves.pdb
+*.vcxproj.user
+Debug/
+MinSizeRel/
+Release/
+RelWithDebInfo/

@@ -1,106 +1,58 @@
 {
-    "version": "2.0",
-    "snapshot": {
-        "resourceViewNodeIndex": 4,
-        "resourceViewResourceIndex": 4,
-        "savedVariables": [
-            {
-                "name": "NoiseType",
-                "value": "5"
-            },
-            {
-                "name": "NumberOfOctaves",
-                "value": "8"
-            },
-            {
-                "name": "DifferentNoisePerOctave",
-                "value": "true"
-            },
-            {
-                "name": "RNGSeed",
-                "value": "1337"
-            },
-            {
-                "name": "PerlinCellSize",
-                "value": "128"
-            },
-            {
-                "name": "PerlinMinMax",
-                "value": "0.000000,1.000000"
-            },
-            {
-                "name": "Histogram_NumBuckets",
-                "value": "256"
-            },
-            {
-                "name": "Histogram_GraphSize",
-                "value": "256,128"
-            },
-            {
-                "name": "Histogram_XAxisRange",
-                "value": "0.000000,1.000000"
-            },
-            {
-                "name": "Histogram_AutoXAxisRange",
-                "value": "true"
-            },
-            {
-                "name": "Histogram_ZeroMinMaxBucket",
-                "value": "true"
-            },
-            {
-                "name": "DFT_RemoveDC",
-                "value": "true"
-            },
-            {
-                "name": "DFT_LogSpaceMagnitude",
-                "value": "true"
-            }
-        ]
-    },
-    "snapshots": [
+    "resourceViewNodeIndex": 4,
+    "resourceViewResourceIndex": 4,
+    "savedVariables": [
         {
-            "name": "Output",
-            "resourceViewNodeIndex": 4,
-            "resourceViewResourceIndex": 4,
-            "savedVariables": [
-                {
-                    "name": "NoiseType",
-                    "value": "0"
-                },
-                {
-                    "name": "NumberOfOctaves",
-                    "value": "1"
-                },
-                {
-                    "name": "DifferentNoisePerOctave",
-                    "value": "false"
-                },
-                {
-                    "name": "MakeHistogram_NumBuckets",
-                    "value": "256"
-                },
-                {
-                    "name": "MakeHistogram_GraphSize",
-                    "value": "256,128"
-                },
-                {
-                    "name": "MakeHistogram_XAxisRange",
-                    "value": "0.000000,1.000000"
-                },
-                {
-                    "name": "MakeHistogram_AutoXAxisRange",
-                    "value": "true"
-                },
-                {
-                    "name": "MakeDFT_RemoveDC",
-                    "value": "false"
-                },
-                {
-                    "name": "MakeDFT_LogSpaceMagnitude",
-                    "value": "true"
-                }
-            ]
+            "name": "NoiseType",
+            "value": "0"
+        },
+        {
+            "name": "NumberOfOctaves",
+            "value": "3"
+        },
+        {
+            "name": "DifferentNoisePerOctave",
+            "value": "false"
+        },
+        {
+            "name": "RNGSeed",
+            "value": "1337"
+        },
+        {
+            "name": "PerlinCellSize",
+            "value": "128"
+        },
+        {
+            "name": "PerlinMinMax",
+            "value": "0.000000,1.000000"
+        },
+        {
+            "name": "Histogram_NumBuckets",
+            "value": "256"
+        },
+        {
+            "name": "Histogram_GraphSize",
+            "value": "256,128"
+        },
+        {
+            "name": "Histogram_XAxisRange",
+            "value": "0.000000,1.000000"
+        },
+        {
+            "name": "Histogram_AutoXAxisRange",
+            "value": "true"
+        },
+        {
+            "name": "Histogram_ZeroMinMaxBucket",
+            "value": "false"
+        },
+        {
+            "name": "DFT_RemoveDC",
+            "value": "true"
+        },
+        {
+            "name": "DFT_LogSpaceMagnitude",
+            "value": "true"
         }
     ]
 }

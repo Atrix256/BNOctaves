@@ -31,6 +31,9 @@ namespace BNOctaves
     ID3D12PipelineState* ContextInternal::computeShader_Histogram_InitMinMaxValue_pso = nullptr;
     ID3D12RootSignature* ContextInternal::computeShader_Histogram_InitMinMaxValue_rootSig = nullptr;
 
+    ID3D12PipelineState* ContextInternal::computeShader_Histogram_InitCounts_pso = nullptr;
+    ID3D12RootSignature* ContextInternal::computeShader_Histogram_InitCounts_rootSig = nullptr;
+
     ID3D12PipelineState* ContextInternal::computeShader_Display_pso = nullptr;
     ID3D12RootSignature* ContextInternal::computeShader_Display_rootSig = nullptr;
 
@@ -89,6 +92,35 @@ namespace BNOctaves
 
             if(!DX12Utils::MakeComputePSO_DXC(device, Context::s_techniqueLocation.c_str(), L"shaders/Histogram/InitMinMaxValueCS.hlsl", "csmain", "cs_6_1", defines,
                ContextInternal::computeShader_Histogram_InitMinMaxValue_rootSig, &ContextInternal::computeShader_Histogram_InitMinMaxValue_pso, c_debugShaders, (c_debugNames ? L"Histogram_InitMinMaxValue" : nullptr), Context::LogFn))
+                return false;
+        }
+
+        // Compute Shader: Histogram_InitCounts
+        {
+            D3D12_STATIC_SAMPLER_DESC* samplers = nullptr;
+
+            D3D12_DESCRIPTOR_RANGE ranges[1];
+
+            // Counts
+            ranges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
+            ranges[0].NumDescriptors = 1;
+            ranges[0].BaseShaderRegister = 0;
+            ranges[0].RegisterSpace = 0;
+            ranges[0].OffsetInDescriptorsFromTableStart = 0;
+
+            if(!DX12Utils::MakeRootSig(device, ranges, 1, samplers, 0, &ContextInternal::computeShader_Histogram_InitCounts_rootSig, (c_debugNames ? L"Histogram_InitCounts" : nullptr), Context::LogFn))
+                return false;
+
+            D3D_SHADER_MACRO defines[] = {
+                { "__GigiDispatchMultiply", "uint3(1,1,1)" },
+                { "__GigiDispatchDivide", "uint3(1,1,1)" },
+                { "__GigiDispatchPreAdd", "uint3(0,0,0)" },
+                { "__GigiDispatchPostAdd", "uint3(0,0,0)" },
+                { nullptr, nullptr }
+            };
+
+            if(!DX12Utils::MakeComputePSO_DXC(device, Context::s_techniqueLocation.c_str(), L"shaders/Histogram/InitCountsCS.hlsl", "csmain", "cs_6_1", defines,
+               ContextInternal::computeShader_Histogram_InitCounts_rootSig, &ContextInternal::computeShader_Histogram_InitCounts_pso, c_debugShaders, (c_debugNames ? L"Histogram_InitCounts" : nullptr), Context::LogFn))
                 return false;
         }
 
@@ -488,6 +520,18 @@ namespace BNOctaves
         {
             s_delayedRelease.Add(ContextInternal::computeShader_Histogram_InitMinMaxValue_rootSig);
             ContextInternal::computeShader_Histogram_InitMinMaxValue_rootSig = nullptr;
+        }
+
+        if(ContextInternal::computeShader_Histogram_InitCounts_pso)
+        {
+            s_delayedRelease.Add(ContextInternal::computeShader_Histogram_InitCounts_pso);
+            ContextInternal::computeShader_Histogram_InitCounts_pso = nullptr;
+        }
+
+        if(ContextInternal::computeShader_Histogram_InitCounts_rootSig)
+        {
+            s_delayedRelease.Add(ContextInternal::computeShader_Histogram_InitCounts_rootSig);
+            ContextInternal::computeShader_Histogram_InitCounts_rootSig = nullptr;
         }
 
         if(ContextInternal::computeShader_Display_pso)
@@ -1097,12 +1141,13 @@ namespace BNOctaves
 
         D3D12_RANGE range;
         range.Begin = 0;
-        range.End = ((8 + 1) * 2) * sizeof(uint64_t);
+        range.End = ((9 + 1) * 2) * sizeof(uint64_t);
 
         uint64_t* timeStampBuffer = nullptr;
         m_internal.m_TimestampReadbackBuffer->Map(0, &range, (void**)&timeStampBuffer);
 
         m_profileData[numItems].m_gpu = float(GPUTickDelta * double(timeStampBuffer[numItems*2+2] - timeStampBuffer[numItems*2+1])); numItems++; // compute shader: Histogram_InitMinMaxValue
+        m_profileData[numItems].m_gpu = float(GPUTickDelta * double(timeStampBuffer[numItems*2+2] - timeStampBuffer[numItems*2+1])); numItems++; // compute shader: Histogram_InitCounts
         m_profileData[numItems].m_gpu = float(GPUTickDelta * double(timeStampBuffer[numItems*2+2] - timeStampBuffer[numItems*2+1])); numItems++; // compute shader: Display
         m_profileData[numItems].m_gpu = float(GPUTickDelta * double(timeStampBuffer[numItems*2+2] - timeStampBuffer[numItems*2+1])); numItems++; // compute shader: Histogram_MakeMinMaxValue
         m_profileData[numItems].m_gpu = float(GPUTickDelta * double(timeStampBuffer[numItems*2+2] - timeStampBuffer[numItems*2+1])); numItems++; // compute shader: Histogram_MakeCounts
@@ -1264,7 +1309,7 @@ namespace BNOctaves
         // reset the timer index
         s_timerIndex = 0;
 
-        ScopedPerfEvent scopedPerf("BNOctaves", commandList, 26);
+        ScopedPerfEvent scopedPerf("BNOctaves", commandList, 27);
 
         std::chrono::high_resolution_clock::time_point startPointCPUTechnique;
         if(context->m_profile)
@@ -1273,14 +1318,14 @@ namespace BNOctaves
             if(context->m_internal.m_TimestampQueryHeap == nullptr)
             {
                 D3D12_QUERY_HEAP_DESC QueryHeapDesc;
-                QueryHeapDesc.Count = (8+1) * 2;
+                QueryHeapDesc.Count = (9+1) * 2;
                 QueryHeapDesc.NodeMask = 1;
                 QueryHeapDesc.Type = D3D12_QUERY_HEAP_TYPE_TIMESTAMP;
                 device->CreateQueryHeap(&QueryHeapDesc, IID_PPV_ARGS(&context->m_internal.m_TimestampQueryHeap));
                 if (c_debugNames)
                     context->m_internal.m_TimestampQueryHeap->SetName(L"BNOctaves Time Stamp Query Heap");
 
-                context->m_internal.m_TimestampReadbackBuffer = DX12Utils::CreateBuffer(device, sizeof(uint64_t) * (8+1) * 2, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_HEAP_TYPE_READBACK, (c_debugNames ? L"BNOctaves Time Stamp Query Heap" : nullptr), nullptr);
+                context->m_internal.m_TimestampReadbackBuffer = DX12Utils::CreateBuffer(device, sizeof(uint64_t) * (9+1) * 2, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_HEAP_TYPE_READBACK, (c_debugNames ? L"BNOctaves Time Stamp Query Heap" : nullptr), nullptr);
             }
             commandList->EndQuery(context->m_internal.m_TimestampQueryHeap, D3D12_QUERY_TYPE_TIMESTAMP, s_timerIndex++);
         }
@@ -1342,6 +1387,58 @@ namespace BNOctaves
             if(context->m_profile)
             {
                 context->m_profileData[(s_timerIndex-1)/2].m_label = "Histogram_InitMinMaxValue";
+                context->m_profileData[(s_timerIndex-1)/2].m_cpu = (float)std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - startPointCPU).count();
+                commandList->EndQuery(context->m_internal.m_TimestampQueryHeap, D3D12_QUERY_TYPE_TIMESTAMP, s_timerIndex++);
+            }
+        }
+
+        // Transition resources for the next action
+        {
+            D3D12_RESOURCE_BARRIER barriers[1];
+
+            barriers[0].Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+            barriers[0].Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+            barriers[0].Transition.pResource = context->m_output.buffer_Histogram_Counts;
+            barriers[0].Transition.StateBefore = D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+            barriers[0].Transition.StateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+            barriers[0].Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+            commandList->ResourceBarrier(1, barriers);
+        }
+
+        // Compute Shader: Histogram_InitCounts
+        {
+            ScopedPerfEvent scopedPerf("Compute Shader: Histogram_InitCounts", commandList, 12);
+            std::chrono::high_resolution_clock::time_point startPointCPU;
+            if(context->m_profile)
+            {
+                startPointCPU = std::chrono::high_resolution_clock::now();
+                commandList->EndQuery(context->m_internal.m_TimestampQueryHeap, D3D12_QUERY_TYPE_TIMESTAMP, s_timerIndex++);
+            }
+
+            commandList->SetComputeRootSignature(ContextInternal::computeShader_Histogram_InitCounts_rootSig);
+            commandList->SetPipelineState(ContextInternal::computeShader_Histogram_InitCounts_pso);
+
+            DX12Utils::ResourceDescriptor descriptors[] = {
+                { context->m_output.buffer_Histogram_Counts, context->m_output.buffer_Histogram_Counts_format, DX12Utils::AccessType::UAV, DX12Utils::ResourceType::Buffer, false, context->m_output.buffer_Histogram_Counts_stride, context->m_output.buffer_Histogram_Counts_count, 0 }
+            };
+
+            D3D12_GPU_DESCRIPTOR_HANDLE descriptorTable = GetDescriptorTable(device, s_srvHeap, descriptors, 1, Context::LogFn);
+            commandList->SetComputeRootDescriptorTable(0, descriptorTable);
+
+            unsigned int baseDispatchSize[3] = { context->m_output.buffer_Histogram_Counts_count, 1, 1 };
+
+            unsigned int dispatchSize[3] = {
+                (((baseDispatchSize[0] + 0) * 1) / 1 + 0 + 64 - 1) / 64,
+                (((baseDispatchSize[1] + 0) * 1) / 1 + 0 + 1 - 1) / 1,
+                (((baseDispatchSize[2] + 0) * 1) / 1 + 0 + 1 - 1) / 1
+            };
+
+            commandList->Dispatch(dispatchSize[0], dispatchSize[1], dispatchSize[2]);
+
+            if(context->m_profile)
+            {
+                context->m_profileData[(s_timerIndex-1)/2].m_label = "Histogram_InitCounts";
                 context->m_profileData[(s_timerIndex-1)/2].m_cpu = (float)std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - startPointCPU).count();
                 commandList->EndQuery(context->m_internal.m_TimestampQueryHeap, D3D12_QUERY_TYPE_TIMESTAMP, s_timerIndex++);
             }
@@ -1511,12 +1608,9 @@ namespace BNOctaves
         {
             D3D12_RESOURCE_BARRIER barriers[2];
 
-            barriers[0].Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+            barriers[0].Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
             barriers[0].Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-            barriers[0].Transition.pResource = context->m_output.buffer_Histogram_Counts;
-            barriers[0].Transition.StateBefore = D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
-            barriers[0].Transition.StateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
-            barriers[0].Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+            barriers[0].UAV.pResource = context->m_output.buffer_Histogram_Counts;
 
             barriers[1].Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
             barriers[1].Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
@@ -1667,7 +1761,7 @@ namespace BNOctaves
 
         // Compute Shader: DFT_DFT
         {
-            ScopedPerfEvent scopedPerf("Compute Shader: DFT_DFT", commandList, 13);
+            ScopedPerfEvent scopedPerf("Compute Shader: DFT_DFT", commandList, 14);
             std::chrono::high_resolution_clock::time_point startPointCPU;
             if(context->m_profile)
             {
@@ -1736,7 +1830,7 @@ namespace BNOctaves
 
         // Compute Shader: DFT_Normalize
         {
-            ScopedPerfEvent scopedPerf("Compute Shader: DFT_Normalize", commandList, 15);
+            ScopedPerfEvent scopedPerf("Compute Shader: DFT_Normalize", commandList, 16);
             std::chrono::high_resolution_clock::time_point startPointCPU;
             if(context->m_profile)
             {

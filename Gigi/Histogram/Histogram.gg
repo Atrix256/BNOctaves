@@ -124,6 +124,26 @@
                     }
                 }
             ]
+        },
+        {
+            "name": "InitCountsCS",
+            "fileName": "InitCountsCS.hlsl",
+            "entryPoint": "csmain",
+            "NumThreads": [
+                64,
+                1,
+                1
+            ],
+            "resources": [
+                {
+                    "name": "Counts",
+                    "type": "Buffer",
+                    "access": "UAV",
+                    "buffer": {
+                        "type": "Uint"
+                    }
+                }
+            ]
         }
     ],
     "nodes": [
@@ -153,8 +173,8 @@
                 "connections": [
                     {
                         "srcPin": "Counts",
-                        "dstNode": "Counts",
-                        "dstPin": "resource"
+                        "dstNode": "InitCounts",
+                        "dstPin": "Counts"
                     },
                     {
                         "srcPin": "Input",
@@ -184,8 +204,8 @@
             "resourceBuffer": {
                 "name": "Counts",
                 "editorPos": [
-                    -53.0,
-                    98.0
+                    -197.0,
+                    114.0
                 ],
                 "visibility": "Exported",
                 "format": {
@@ -318,6 +338,34 @@
                 ],
                 "shader": {
                     "name": "InitMinMaxValueCS"
+                }
+            }
+        },
+        {
+            "actionComputeShader": {
+                "name": "InitCounts",
+                "editorPos": [
+                    -69.0,
+                    98.0
+                ],
+                "linkProperties": [
+                    {},
+                    {}
+                ],
+                "connections": [
+                    {
+                        "srcPin": "Counts",
+                        "dstNode": "Counts",
+                        "dstPin": "resource"
+                    }
+                ],
+                "shader": {
+                    "name": "InitCountsCS"
+                },
+                "dispatchSize": {
+                    "node": {
+                        "name": "Counts"
+                    }
                 }
             }
         }

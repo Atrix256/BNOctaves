@@ -204,7 +204,7 @@ namespace BNOctaves
         void EnsureResourcesCreated(ID3D12Device* device, ID3D12GraphicsCommandList* commandList);
         bool EnsureDrawCallPSOsCreated(ID3D12Device* device, bool dirty);
 
-        ProfileEntry m_profileData[8+1]; // One for each action node, and another for the total
+        ProfileEntry m_profileData[9+1]; // One for each action node, and another for the total
     };
 
     struct ScopedPerfEvent

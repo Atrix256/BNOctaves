@@ -106,6 +106,9 @@ namespace BNOctaves
         static ID3D12PipelineState* computeShader_Histogram_InitMinMaxValue_pso;
         static ID3D12RootSignature* computeShader_Histogram_InitMinMaxValue_rootSig;
 
+        static ID3D12PipelineState* computeShader_Histogram_InitCounts_pso;
+        static ID3D12RootSignature* computeShader_Histogram_InitCounts_rootSig;
+
         ID3D12Resource* buffer_DFT_MaxMagnitude = nullptr;
         DXGI_FORMAT buffer_DFT_MaxMagnitude_format = DXGI_FORMAT_UNKNOWN; // For typed buffers, the type of the buffer
         unsigned int buffer_DFT_MaxMagnitude_stride = 0; // For structured buffers, the size of the structure
